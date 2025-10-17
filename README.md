@@ -5,7 +5,8 @@
 ## Memory Handler
 - [JavaBasic video (10/15)](https://training-homework.s3.us-east-2.amazonaws.com/Yu_Shi_10_15_2025_JavaBasic.mp4)
 - [JavaBasic missing points (10/15)](https://training-homework.s3.us-east-2.amazonaws.com/Yu_Shi_10_15_2025_JavaBasic.pdf)
-
+- [JavaBasic video (10/17)](https://training-homework.s3.us-east-2.amazonaws.com/Yu_Shi_10_17_2025_JavaBasic.mp4)
+- [JavaBasic missing points (10/17)](https://training-homework.s3.us-east-2.amazonaws.com/Yu_Shi_10_17_2025_JavaBasic.pdf)
 
 
 ## AWS
