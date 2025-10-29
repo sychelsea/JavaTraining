@@ -1,5 +1,6 @@
 package com.practice;
 
+import com.practice.exception.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,11 @@ public class UserController {
     // insert (RequestBody)
     @PostMapping("/{id}")
     public ResponseEntity<String> createUser(@PathVariable String id, @RequestBody String profileStr) {
-        // ✅ Idempotency check: 如果已存在则返回 409 Conflict
+        // Idempotency check: 如果已存在则返回 409 Conflict
         if (userDB.containsKey(id)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("User with ID " + id + " already exists");
+            throw new UserAlreadyExistsException("User with ID " + id + " already exists");
+            //return ResponseEntity.status(HttpStatus.CONFLICT)
+            //        .body("User with ID " + id + " already exists");
         }
 
         userDB.put(id, profileStr);
