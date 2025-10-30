@@ -1,4 +1,4 @@
-package com.practice;
+package com.practice.controller;
 
 import com.practice.exception.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
@@ -10,12 +10,12 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/v1/user")
+@RequestMapping("/v1/api")
 public class UserController {
     private static Map<String, String> userDB = new HashMap<>();
 
     // read UserId
-    @GetMapping("/{id}")
+    @GetMapping("/user/{id}")
     public ResponseEntity<String> getUser(@PathVariable String id) {
         if (!userDB.containsKey(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -25,9 +25,9 @@ public class UserController {
     }
 
     // insert (RequestBody)
-    @PostMapping("/{id}")
+    @PostMapping("/user/{id}")
     public ResponseEntity<String> createUser(@PathVariable String id, @RequestBody String profileStr) {
-        // Idempotency check: 如果已存在则返回 409 Conflict
+        // Idempotency check
         if (userDB.containsKey(id)) {
             throw new UserAlreadyExistsException("User with ID " + id + " already exists");
             //return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     // delete UserId
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/user/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         if (!userDB.containsKey(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -51,7 +51,7 @@ public class UserController {
     }
 
     // Update UserId + new RequestBody user
-    @PutMapping("/{id}")
+    @PutMapping("/user/{id}")
     public ResponseEntity<String> updateUser(@PathVariable String id, @RequestBody String userJson) {
         if (!userDB.containsKey(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
