@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-@Qualifier("jdbcUserService")
+@Qualifier("UserService")
 public class UserServiceImpl implements UserService {
     private final UserDao dao;
 
-    public UserServiceImpl(UserDao dao) {
+    public UserServiceImpl(@Qualifier("jpaUserDao") UserDao dao) {
         this.dao = dao;
     }
 
@@ -36,6 +36,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User deleteUser(long id) {
         Optional<User> user = dao.find(id);
         if (user.isEmpty()) {
@@ -46,14 +47,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User updateUser(long id, User info) {
         Optional<User> user = dao.find(id);
         if (user.isEmpty()) {
             throw new UserNotFoundException(id);
         }
         User u = user.get();
-        u.setName(info.getName());
-        u.setProfile(info.getProfile());
+        if (info.getName() != null) {
+            u.setName(info.getName());
+        }
+        if (info.getProfile() != null) {
+            u.setProfile(info.getProfile());
+        }
         dao.update(u);
         return u;
     }

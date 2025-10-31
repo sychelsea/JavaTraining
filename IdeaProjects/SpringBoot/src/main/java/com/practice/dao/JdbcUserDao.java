@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-@Repository // jdbc implementation
+@Repository("jdbcUserDao")
 public class JdbcUserDao implements UserDao {
     private final JdbcTemplate jdbc;
 
