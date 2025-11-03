@@ -1,7 +1,7 @@
 package com.practice.service;
 
 import com.practice.dao.sql.UserDao;
-import com.practice.domain.User;
+import com.practice.model.User;
 import com.practice.exception.UserAlreadyExistsException;
 import com.practice.exception.UserNotFoundException;
 import com.practice.exception.UserOptimisticLockingFailureException;
@@ -58,8 +58,8 @@ public class UserServiceImpl implements UserService {
         if (info.getName() != null) {
             u.setName(info.getName());
         }
-        if (info.getProfile() != null) {
-            u.setProfile(info.getProfile());
+        if (info.getEmail() != null) {
+            u.setEmail(info.getEmail());
         }
         dao.update(u);
         return u;
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         // pessimisticLock added in findForUpdate(id)
         User u = dao.findForUpdate(id).orElseThrow(() -> new UserNotFoundException(id));
         if (info.getName() != null)    u.setName(info.getName());
-        if (info.getProfile() != null) u.setProfile(info.getProfile());
+        if (info.getEmail() != null) u.setEmail(info.getEmail());
 
         // for observation
         if (holdMillis > 0) {
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
     public User updateUserWithOptimisticLock(long id, User info) {
         User u = dao.find(id).orElseThrow(() -> new UserNotFoundException(id));
         if (info.getName() != null)    u.setName(info.getName());
-        if (info.getProfile() != null) u.setProfile(info.getProfile());
+        if (info.getEmail() != null) u.setEmail(info.getEmail());
         try {
             // @Version => "WHERE id=? AND version=?"
             // Hibernate performs dirty checking at flush/commit time.

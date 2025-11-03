@@ -1,4 +1,4 @@
-package com.practice.domain;
+package com.practice.model;
 
 import jakarta.persistence.*;
 
@@ -13,7 +13,7 @@ public class User {
     private String name;
 
     @Column(name = "profile")
-    private String profile;
+    private String email;
 
     @Version
     private Long version;
@@ -29,10 +29,10 @@ public class User {
         this.name = name;
     }
 
-    public User(long id, String name, String profile) {
+    public User(long id, String name, String email) {
         this.id = id;
         this.name = name;
-        this.profile = profile;
+        this.email = email;
     }
 
     public long getId() { return id; }
@@ -41,6 +41,6 @@ public class User {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public String getProfile() { return profile; }
-    public void setProfile(String profile) { this.profile = profile; }
+    public String getEmail() { return email; }
+    public void setEmail(String profile) { this.email = profile; }
 }

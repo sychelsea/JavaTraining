@@ -1,6 +1,6 @@
 package com.practice.dao.sql;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 import java.util.Optional;
 
 public interface UserDao {

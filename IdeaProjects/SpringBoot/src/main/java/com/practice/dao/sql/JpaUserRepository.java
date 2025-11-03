@@ -1,6 +1,6 @@
 package com.practice.dao.sql;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -16,7 +16,7 @@ public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecifi
 
     @Modifying
     @Transactional
-    @Query("update User u set u.name = :name, u.profile = :profile where u.id = :id")
+    @Query("update User u set u.name = :name, u.email = :profile where u.id = :id")
     int updateUser(@Param("id") long id,
                    @Param("name") String name,
                    @Param("profile") String profile);

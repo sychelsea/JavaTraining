@@ -1,6 +1,6 @@
 package com.practice.controller;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 import com.practice.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.practice.exception;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 
 public class UserAlreadyExistsException extends RuntimeException {
 

@@ -1,6 +1,6 @@
 package com.practice.service;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 
 public interface UserService {
 

@@ -1,6 +1,6 @@
 package com.practice.dao.sql;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -27,9 +27,9 @@ public class HibernateUserDao implements UserDao {
     @Override
     public int update(User u) {
         int rows = em.createQuery(
-                        "UPDATE User u SET u.name=:name, u.profile=:profile WHERE u.id=:id")
+                        "UPDATE User u SET u.name=:name, u.email=:profile WHERE u.id=:id")
                 .setParameter("name", u.getName())
-                .setParameter("profile", u.getProfile())
+                .setParameter("profile", u.getEmail())
                 .setParameter("id", u.getId())
                 .executeUpdate();
         return rows; // 0

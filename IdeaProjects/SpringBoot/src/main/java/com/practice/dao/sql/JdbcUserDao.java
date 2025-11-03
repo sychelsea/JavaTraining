@@ -1,6 +1,6 @@
 package com.practice.dao.sql;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -39,13 +39,13 @@ public class JdbcUserDao implements UserDao {
     @Override
     public int create(User u) {
         return jdbc.update("INSERT INTO users(id, name, profile) VALUES(?, ?, ?)",
-                u.getId(), u.getName(), u.getProfile());
+                u.getId(), u.getName(), u.getEmail());
     }
 
     @Override
     public int update(User u) {
         return jdbc.update("UPDATE users SET name = ?, profile = ? WHERE id = ?",
-                u.getName(), u.getProfile(), u.getId());
+                u.getName(), u.getEmail(), u.getId());
     }
 
     @Override

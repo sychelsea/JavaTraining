@@ -1,6 +1,6 @@
 package com.practice.dao.sql;
 
-import com.practice.domain.User;
+import com.practice.model.User;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +38,7 @@ public class JpaUserDao implements UserDao {
     @Override
     @Transactional
     public int update(User u) {
-        return repo.updateUser(u.getId(), u.getName(), u.getProfile());
+        return repo.updateUser(u.getId(), u.getName(), u.getEmail());
     }
 
     @Override
