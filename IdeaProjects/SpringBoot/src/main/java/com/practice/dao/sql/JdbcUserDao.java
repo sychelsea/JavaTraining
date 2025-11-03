@@ -1,4 +1,4 @@
-package com.practice.dao;
+package com.practice.dao.sql;
 
 import com.practice.domain.User;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,7 +38,6 @@ public class JdbcUserDao implements UserDao {
 
     @Override
     public int create(User u) {
-        // 这里假设 id 由客户端传入；如需数据库自增，可以改为 BIGSERIAL + RETURNING，再取 id。
         return jdbc.update("INSERT INTO users(id, name, profile) VALUES(?, ?, ?)",
                 u.getId(), u.getName(), u.getProfile());
     }
@@ -52,5 +51,10 @@ public class JdbcUserDao implements UserDao {
     @Override
     public int delete(long id) {
         return jdbc.update("DELETE FROM users WHERE id = ?", id);
+    }
+
+    @Override
+    public Optional<User> findForUpdate(long id) {
+        return find(id);
     }
 }

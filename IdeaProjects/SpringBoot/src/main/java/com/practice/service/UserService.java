@@ -11,4 +11,8 @@ public interface UserService {
     public User deleteUser(long id);
 
     public User updateUser(long id, User info);
+
+    public User updateUserWithPessimisticLock(long id, User body, long holdMillis);
+
+    public User updateUserWithOptimisticLock(long id, User body);
 }

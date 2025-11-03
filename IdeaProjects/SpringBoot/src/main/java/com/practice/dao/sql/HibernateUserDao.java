@@ -1,4 +1,4 @@
-package com.practice.dao;
+package com.practice.dao.sql;
 
 import com.practice.domain.User;
 import jakarta.persistence.EntityManager;
@@ -41,5 +41,10 @@ public class HibernateUserDao implements UserDao {
                 .setParameter("id", id)
                 .executeUpdate();
         return rows;
+    }
+
+    @Override
+    public Optional<User> findForUpdate(long id) {
+        return find(id);
     }
 }

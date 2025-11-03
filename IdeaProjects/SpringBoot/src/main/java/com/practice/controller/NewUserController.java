@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v2/api")
-public class JdbcUserController {
+public class NewUserController {
     private final UserService service;
 
-    JdbcUserController(UserService userService) {
+    NewUserController(UserService userService) {
         this.service = userService;
     }
 
@@ -41,6 +41,23 @@ public class JdbcUserController {
     @PutMapping("/user/{id}")
     public ResponseEntity<User> updateUser(@PathVariable long id, @RequestBody User body) {
         User user = service.updateUser(id, body);
+        return ResponseEntity.ok(user);
+    }
+
+
+    // ========= Update with locks ==========
+
+    // Update pessimistic lock
+    @PutMapping("/user/pl/{id}")
+    public ResponseEntity<User> updateUserWithPessimisticLock(@PathVariable long id, @RequestBody User body) {
+        User user = service.updateUserWithPessimisticLock(id, body, 5000);
+        return ResponseEntity.ok(user);
+    }
+
+    // Update optimistic lock
+    @PutMapping("/user/ol/{id}")
+    public ResponseEntity<User> updateUserWithOptimisticLock(@PathVariable long id, @RequestBody User body) {
+        User user = service.updateUserWithOptimisticLock(id, body);
         return ResponseEntity.ok(user);
     }
 }

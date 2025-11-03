@@ -1,9 +1,10 @@
 package com.practice.service;
 
-import com.practice.dao.UserDao;
+import com.practice.dao.sql.UserDao;
 import com.practice.domain.User;
 import com.practice.exception.UserAlreadyExistsException;
 import com.practice.exception.UserNotFoundException;
+import com.practice.exception.UserOptimisticLockingFailureException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,5 +63,37 @@ public class UserServiceImpl implements UserService {
         }
         dao.update(u);
         return u;
+    }
+
+    // For JPA implementation only
+    @Transactional
+    public User updateUserWithPessimisticLock(long id, User info, long holdMillis) {
+        // pessimisticLock added in findForUpdate(id)
+        User u = dao.findForUpdate(id).orElseThrow(() -> new UserNotFoundException(id));
+        if (info.getName() != null)    u.setName(info.getName());
+        if (info.getProfile() != null) u.setProfile(info.getProfile());
+
+        // for observation
+        if (holdMillis > 0) {
+            try { Thread.sleep(holdMillis); } catch (InterruptedException ignored) {}
+        }
+        dao.update(u);
+        return u;
+    }
+
+    // For JPA implementation only
+    @Transactional
+    public User updateUserWithOptimisticLock(long id, User info) {
+        User u = dao.find(id).orElseThrow(() -> new UserNotFoundException(id));
+        if (info.getName() != null)    u.setName(info.getName());
+        if (info.getProfile() != null) u.setProfile(info.getProfile());
+        try {
+            // @Version => "WHERE id=? AND version=?"
+            // Hibernate performs dirty checking at flush/commit time.
+            dao.update(u);
+            return u;
+        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+            throw new UserOptimisticLockingFailureException(u);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.practice.dao;
+package com.practice.dao.sql;
 
 import com.practice.domain.User;
 import org.springframework.stereotype.Repository;
@@ -22,6 +22,14 @@ public class JpaUserDao implements UserDao {
 
     @Override
     @Transactional
+    public Optional<User> findForUpdate(long id) {
+        User u = repo.findByIdForUpdate(id);
+        return Optional.ofNullable(u);
+    }
+
+
+    @Override
+    @Transactional
     public int create(User u) {
         repo.saveAndFlush(u);
         return 1;
@@ -38,4 +46,6 @@ public class JpaUserDao implements UserDao {
     public int delete(long id) {
         return repo.deleteByIdReturningCount(id);
     }
+
+
 }
