@@ -1,0 +1,78 @@
+services:
+  app:
+    image: eclipse-temurin:17-jre
+    container_name: spring-app
+    working_dir: /app
+    volumes:
+      - ./app/app.jar:/app/app.jar:ro
+    command: ["java","-jar","/app/app.jar","--server.port=8080"]
+    ports:
+      - "8080:8080"                # 只开放应用端口给公网
+    environment:
+      # Spring 通过容器内网主机名连接各数据库
+      SPRING_DATASOURCE_URL: jdbc:postgresql://pg:5432/demo_db
+      SPRING_DATASOURCE_USERNAME: chelsea
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: "6379"
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/demo
+      # Cassandra / Elasticsearch 看你项目是否真的需要
+    depends_on:
+      pg:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  pg:
+    image: postgres:16
+    container_name: pg
+    environment:
+      POSTGRES_DB: demo_db
+      POSTGRES_USER: chelsea
+      POSTGRES_PASSWORD: chelsea
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db-init/pg:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U chelsea -d demo_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: redis
+    command: ["redis-server","--appendonly","yes"]
+    volumes:
+      - redisdata:/data
+
+  # 如需 Mongo（可选，内存占用较轻）
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    volumes:
+      - mongodata:/data/db
+      - ./db-init/mongo:/docker-entrypoint-initdb.d:ro
+    # 不映射 27017 到公网，应用通过容器内网访问
+
+  # ⚠️ Cassandra & Elasticsearch 很吃内存，t2.micro 不建议启
+  # cassandra:
+  #   image: cassandra:4
+  #   environment: { MAX_HEAP_SIZE: 512M, HEAP_NEWSIZE: 256M }
+  #   volumes: [ "cassdata:/var/lib/cassandra" ]
+  #
+  # es:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+  #   environment:
+  #     - discovery.type=single-node
+  #     - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  #   volumes: [ "esdata:/usr/share/elasticsearch/data" ]
+
+volumes:
+  pgdata:
+  redisdata:
+  mongodata:
+  # cassdata:
+  # esdata:
+

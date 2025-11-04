@@ -1,0 +1,62 @@
+services:
+  pg:
+    image: postgres:16
+    container_name: pg
+    environment:
+      POSTGRES_DB: demo_db
+      POSTGRES_USER: chelsea
+      POSTGRES_PASSWORD: chelsea
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"   # 仅绑定本机
+
+  redis:
+    image: redis:7
+    container_name: redis
+    command: ["redis-server","--appendonly","yes"]
+    volumes:
+      - redisdata:/data
+    ports:
+      - "127.0.0.1:6379:6379"   # 仅绑定本机
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    volumes:
+      - mongodata:/data/db
+    ports:
+      - "127.0.0.1:27017:27017" # 仅绑定本机
+ 
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    environment:
+      MAX_HEAP_SIZE: 512M         # 压内存（尽量别低于 512M）
+      HEAP_NEWSIZE: 256M
+      CASSANDRA_CLUSTER_NAME: demo_cluster
+      CASSANDRA_DC: dc1
+      CASSANDRA_RACK: rack1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+    ulimits:
+      nofile:
+        soft: 49152
+        hard: 49152
+    volumes:
+      - cassdata:/var/lib/cassandra
+    ports:
+      - "127.0.0.1:9042:9042"     # 只给宿主机访问，公网不可见
+    healthcheck:
+      test: ["CMD-SHELL","cqlsh -e 'SHOW VERSION' 127.0.0.1 9042 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 90s
+ 
+
+volumes:
+  pgdata:
+  redisdata:
+  mongodata:
+  cassdata:
+
