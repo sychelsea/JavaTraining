@@ -2,9 +2,21 @@ package com.practice.model;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+
+
+// Implements Serializable so that User objects can be converted into a byte stream.
+// The default RedisCacheManager uses JDK serialization to store cached values.
+
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
+
+    // - A unique identifier used by Java during deserialization to verify
+    //   that the sender and receiver of a serialized object have loaded
+    //   classes that are compatible with respect to serialization.
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column(name = "id")
     private long id;

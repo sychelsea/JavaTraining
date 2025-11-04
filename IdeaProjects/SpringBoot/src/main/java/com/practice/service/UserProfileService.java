@@ -24,7 +24,7 @@ public class UserProfileService {
         // confirm the user id with sql database
         User u = userRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        // 2) 写入/更新 Mongo 文档
+        // 2) write into mangodb
         UserProfile doc = profileRepo.findById(String.valueOf(u.getId())).orElseGet(UserProfile::new);
         doc.setId(String.valueOf(u.getId()));
         doc.setPreferences(prefs);

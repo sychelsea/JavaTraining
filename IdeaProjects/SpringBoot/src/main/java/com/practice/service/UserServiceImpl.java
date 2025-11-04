@@ -1,11 +1,17 @@
 package com.practice.service;
 
+import com.practice.dao.cassandra.UserEventRepository;
 import com.practice.dao.sql.UserDao;
 import com.practice.model.User;
 import com.practice.exception.UserAlreadyExistsException;
 import com.practice.exception.UserNotFoundException;
 import com.practice.exception.UserOptimisticLockingFailureException;
+import com.practice.model.UserEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,28 +22,41 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserDao dao;
 
-    public UserServiceImpl(@Qualifier("jpaUserDao") UserDao dao) {
+
+    private final UserEventRepository eventRepo;
+
+    public UserServiceImpl(@Qualifier("jpaUserDao") UserDao dao,
+                           @Autowired(required = false) UserEventRepository eventRepo) { // false - Cassandra's failure won't affect the service
         this.dao = dao;
+        this.eventRepo = eventRepo;
     }
 
     @Override
+    @Cacheable(cacheNames = "userById", key = "#id")
     public User getUser(long id) {
         return dao.find(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
     @Transactional
+    @CachePut(cacheNames = "userById", key = "#result.id")
     public User createUser(User user) {
         Optional<User> exist = dao.find(user.getId());
         if (exist.isPresent()) {
             throw new UserAlreadyExistsException(exist.get());
         }
         dao.create(user);
+
+        // write the event to Cassandra
+        if (eventRepo != null)
+            eventRepo.save(new UserEvent(user.getId(), "CREATE", "User created: " + user.getName()));
+
         return user;
     }
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "userById", key = "#id")
     public User deleteUser(long id) {
         Optional<User> user = dao.find(id);
         if (user.isEmpty()) {
@@ -49,6 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @CachePut(cacheNames = "userById", key = "#id")
     public User updateUser(long id, User info) {
         Optional<User> user = dao.find(id);
         if (user.isEmpty()) {
@@ -62,11 +82,18 @@ public class UserServiceImpl implements UserService {
             u.setEmail(info.getEmail());
         }
         dao.update(u);
+
+        if (eventRepo != null)
+            eventRepo.save(new UserEvent(id, "UPDATE", "User updated: " + u.getName()));
+
+        // write the event to Cassandra
         return u;
     }
 
     // For JPA implementation only
+    @Override
     @Transactional
+    @CachePut(cacheNames = "userById", key = "#id")
     public User updateUserWithPessimisticLock(long id, User info, long holdMillis) {
         // pessimisticLock added in findForUpdate(id)
         User u = dao.findForUpdate(id).orElseThrow(() -> new UserNotFoundException(id));
@@ -82,7 +109,9 @@ public class UserServiceImpl implements UserService {
     }
 
     // For JPA implementation only
+    @Override
     @Transactional
+    @CachePut(cacheNames = "userById", key = "#id")
     public User updateUserWithOptimisticLock(long id, User info) {
         User u = dao.find(id).orElseThrow(() -> new UserNotFoundException(id));
         if (info.getName() != null)    u.setName(info.getName());
