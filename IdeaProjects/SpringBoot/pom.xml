@@ -11,8 +11,8 @@
 	<groupId>org.example</groupId>
 	<artifactId>SpringBoot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>SprintBoot</name>
-	<description>SprintBoot</description>
+	<name>SpringBoot</name>
+	<description>SpringBoot</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -104,6 +104,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.practice.MyApplication</mainClass>
+                </configuration>
 			</plugin>
 		</plugins>
 	</build>
