@@ -17,11 +17,14 @@ public class NewUserController {
     }
 
     // read UserId
+    // @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @GetMapping("/user/{id}")
     public ResponseEntity<User> getUser(@PathVariable long id) {
         return ResponseEntity.ok(service.getUser(id));
     }
 
+    // create User
+    // @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/user/{id}")
     public ResponseEntity<User> createUser(@PathVariable long id, @RequestBody User body) {
         body.setId(id);
@@ -30,6 +33,7 @@ public class NewUserController {
     }
 
     // delete UserId
+    // @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/user/{id}")
     public ResponseEntity<User> deleteUser(@PathVariable long id) {
         User user = service.deleteUser(id);
@@ -38,6 +42,7 @@ public class NewUserController {
     }
 
     // Update UserId + new RequestBody user
+    // @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/user/{id}")
     public ResponseEntity<User> updateUser(@PathVariable long id, @RequestBody User body) {
         User user = service.updateUser(id, body);

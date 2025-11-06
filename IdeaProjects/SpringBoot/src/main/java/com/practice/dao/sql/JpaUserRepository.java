@@ -7,8 +7,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import jakarta.transaction.Transactional;
 
+import java.util.Optional;
+
 @Repository
 public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+
+    Optional<User> findByUsername(String username); // For Spring Security authentication
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")
@@ -16,10 +20,11 @@ public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecifi
 
     @Modifying
     @Transactional
-    @Query("update User u set u.name = :name, u.email = :profile where u.id = :id")
+    @Query("update User u set u.username = :username, u.password = :password where u.id = :id")
     int updateUser(@Param("id") long id,
-                   @Param("name") String name,
-                   @Param("profile") String profile);
+                   @Param("username") String username,
+                   @Param("password") String password,
+                   @Param("role") String role);
 
     @Modifying
     @Transactional
