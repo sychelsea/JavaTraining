@@ -80,12 +80,6 @@
         <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
-        <!-- Cassandra -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-cassandra</artifactId>
-        </dependency>
-
         <!-- Redis Cache -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
