@@ -49,6 +49,7 @@ public class UserServiceImpl implements UserService {
         if (exist.isPresent()) {
             throw new UserAlreadyExistsException(exist.get());
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         dao.create(user);
 
         // write the event to Cassandra

@@ -18,8 +18,9 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Column(name = "username")
     private String username;
@@ -39,23 +40,23 @@ public class User implements Serializable {
 
     public User() {} // for JSON/Jackson ONLY
 
-    public User(long id) {
+    public User(Long id) {
         this.id = id;
     }
 
-    public User(long id, String username) {
+    public User(Long id, String username) {
         this.id = id;
         this.username = username;
     }
 
-    public User(long id, String username, String password) {
+    public User(Long id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
     }
 
-    public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getUsername() { return username; }
     public void setUsername(String name) { this.username = name; }
