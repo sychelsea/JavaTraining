@@ -15,8 +15,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+// @EnableWebSecurity  // for @PreAuthorize("USER")
+
+
+// @PreAuthorize("USER")
+// @GetMapping
+// public ResponsEntity<User> getUserById()
+
+
+// @PreAuthorize("ADMIN")
+// @PostMapping
+// vs
 @Configuration
-// @EnableWebSecurity  // for @PreAuthorize()
 public class SecurityConfig {
 
     private final CustomUserDetailsService uds;
