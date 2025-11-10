@@ -16,13 +16,13 @@ public class JpaUserDao implements UserDao {
     }
 
     @Override
-    public Optional<User> find(long id) {
+    public Optional<User> find(Long id) {
         return repo.findById(id);
     }
 
     @Override
     @Transactional
-    public Optional<User> findForUpdate(long id) {
+    public Optional<User> findForUpdate(Long id) {
         User u = repo.findByIdForUpdate(id);
         return Optional.ofNullable(u);
     }
@@ -43,7 +43,7 @@ public class JpaUserDao implements UserDao {
 
     @Override
     @Transactional
-    public int delete(long id) {
+    public int delete(Long id) {
         return repo.deleteByIdReturningCount(id);
     }
 

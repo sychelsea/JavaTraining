@@ -24,6 +24,6 @@ spring:
     local-datacenter: datacenter1
     schema-action: create-if-not-exists
 
-#logging:
-#  level:
-    # org.springframework.security: DEBUG
+logging:
+  level:
+    org.springframework.security: DEBUG

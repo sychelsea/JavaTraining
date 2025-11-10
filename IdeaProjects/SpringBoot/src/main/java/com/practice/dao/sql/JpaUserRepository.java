@@ -21,7 +21,7 @@ public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecifi
     @Modifying
     @Transactional
     @Query("update User u set u.username = :username, u.password = :password where u.id = :id")
-    int updateUser(@Param("id") long id,
+    int updateUser(@Param("id") Long id,
                    @Param("username") String username,
                    @Param("password") String password,
                    @Param("role") String role);
@@ -29,5 +29,5 @@ public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecifi
     @Modifying
     @Transactional
     @Query("delete from User u where u.id = :id")
-    int deleteByIdReturningCount(@Param("id") long id);
+    int deleteByIdReturningCount(@Param("id") Long id);
 }
