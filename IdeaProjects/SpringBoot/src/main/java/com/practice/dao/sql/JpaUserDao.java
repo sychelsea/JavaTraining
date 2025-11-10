@@ -38,7 +38,7 @@ public class JpaUserDao implements UserDao {
     @Override
     @Transactional
     public int update(User u) {
-        return repo.updateUser(u.getId(), u.getName(), u.getEmail());
+        return repo.updateUser(u.getId(), u.getUsername(), u.getPassword(), u.getRole());
     }
 
     @Override

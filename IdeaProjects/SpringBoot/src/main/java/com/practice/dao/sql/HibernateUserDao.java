@@ -27,9 +27,9 @@ public class HibernateUserDao implements UserDao {
     @Override
     public int update(User u) {
         int rows = em.createQuery(
-                        "UPDATE User u SET u.name=:name, u.email=:profile WHERE u.id=:id")
-                .setParameter("name", u.getName())
-                .setParameter("profile", u.getEmail())
+                        "UPDATE User u SET u.username=:name, u.password=:profile WHERE u.id=:id")
+                .setParameter("name", u.getUsername())
+                .setParameter("profile", u.getPassword())
                 .setParameter("id", u.getId())
                 .executeUpdate();
         return rows; // 0

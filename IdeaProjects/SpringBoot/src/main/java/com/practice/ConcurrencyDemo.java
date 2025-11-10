@@ -3,7 +3,6 @@ package com.practice;
 import com.practice.model.User;
 import com.practice.service.UserServiceImpl;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
 import java.util.concurrent.CountDownLatch;
@@ -33,8 +32,8 @@ public class ConcurrencyDemo implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Prepare a user in DB first
         User user = new User();
-        user.setName("Chelsea");
-        user.setEmail("Init");
+        user.setUsername("Chelsea");
+        user.setPassword("Init");
         userService.createUser(user);
 
         System.out.println("Created user id=" + user.getId());
@@ -54,8 +53,8 @@ public class ConcurrencyDemo implements CommandLineRunner {
             try {
                 latch.await();
                 User info = new User();
-                info.setName("User-A");
-                info.setEmail("P1");
+                info.setUsername("User-A");
+                info.setPassword("P1");
                 userService.updateUserWithOptimisticLock(userId, info);
                 System.out.println("Thread-1: success");
             } catch (Exception e) {
@@ -67,8 +66,8 @@ public class ConcurrencyDemo implements CommandLineRunner {
             try {
                 latch.await();
                 User info = new User();
-                info.setName("User-B");
-                info.setEmail("P2");
+                info.setUsername("User-B");
+                info.setPassword("P2");
                 userService.updateUserWithOptimisticLock(userId, info);
                 System.out.println("Thread-2: success");
             } catch (Exception e) {
@@ -94,8 +93,8 @@ public class ConcurrencyDemo implements CommandLineRunner {
             try {
                 latch.await();
                 User info = new User();
-                info.setName("User-C");
-                info.setEmail("PX");
+                info.setUsername("User-C");
+                info.setPassword("PX");
                 // Hold the lock for 5 seconds
                 userService.updateUserWithPessimisticLock(userId, info, 5000);
                 System.out.println("Thread-1: finished after 5s");
@@ -109,8 +108,8 @@ public class ConcurrencyDemo implements CommandLineRunner {
                 latch.await();
                 long start = System.currentTimeMillis();
                 User info = new User();
-                info.setName("User-D");
-                info.setEmail("PY");
+                info.setUsername("User-D");
+                info.setPassword("PY");
                 userService.updateUserWithPessimisticLock(userId, info, 0);
                 long elapsed = System.currentTimeMillis() - start;
                 System.out.println("Thread-2: finished, elapsed=" + elapsed + "ms");

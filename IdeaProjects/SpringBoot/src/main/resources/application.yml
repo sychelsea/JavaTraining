@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: SpringBoot
+  config:
+    import: optional:classpath:application-local.yml
+
+  # postgreSQL & JPA moved to local yaml file
+
+  # === MongoDB ===
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/demo_db
+
+  # === Redis ===
+  redis:
+    host: localhost
+    port: 6379
+
+  # === Cassandra ===
+  cassandra:
+    contact-points: localhost
+    port: 9042
+    keyspace-name: demo_keyspace
+    local-datacenter: datacenter1
+    schema-action: create-if-not-exists
+
+#logging:
+#  level:
+    # org.springframework.security: DEBUG

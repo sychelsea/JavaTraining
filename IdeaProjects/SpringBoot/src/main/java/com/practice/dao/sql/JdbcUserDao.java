@@ -39,13 +39,13 @@ public class JdbcUserDao implements UserDao {
     @Override
     public int create(User u) {
         return jdbc.update("INSERT INTO users(id, name, profile) VALUES(?, ?, ?)",
-                u.getId(), u.getName(), u.getEmail());
+                u.getId(), u.getUsername(), u.getPassword());
     }
 
     @Override
     public int update(User u) {
         return jdbc.update("UPDATE users SET name = ?, profile = ? WHERE id = ?",
-                u.getName(), u.getEmail(), u.getId());
+                u.getUsername(), u.getPassword(), u.getId());
     }
 
     @Override
