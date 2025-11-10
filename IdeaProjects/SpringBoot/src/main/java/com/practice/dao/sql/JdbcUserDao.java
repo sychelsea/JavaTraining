@@ -30,7 +30,7 @@ public class JdbcUserDao implements UserDao {
     };
 
     @Override
-    public Optional<User> find(long id) {
+    public Optional<User> find(Long id) {
         List<User> list = jdbc.query("SELECT id, name, profile FROM users WHERE id = ?", USER_ROW_MAPPER, id);
         return list.stream().findFirst();
     }
@@ -49,12 +49,12 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public int delete(long id) {
+    public int delete(Long id) {
         return jdbc.update("DELETE FROM users WHERE id = ?", id);
     }
 
     @Override
-    public Optional<User> findForUpdate(long id) {
+    public Optional<User> findForUpdate(Long id) {
         return find(id);
     }
 }

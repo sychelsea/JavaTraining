@@ -14,7 +14,7 @@ public class HibernateUserDao implements UserDao {
     private EntityManager em;
 
     @Override
-    public Optional<User> find(long id) {
+    public Optional<User> find(Long id) {
         return Optional.ofNullable(em.find(User.class, id));
     }
 
@@ -36,7 +36,7 @@ public class HibernateUserDao implements UserDao {
     }
 
     @Override
-    public int delete(long id) {
+    public int delete(Long id) {
         int rows = em.createQuery("DELETE FROM User u WHERE u.id=:id")
                 .setParameter("id", id)
                 .executeUpdate();
@@ -44,7 +44,7 @@ public class HibernateUserDao implements UserDao {
     }
 
     @Override
-    public Optional<User> findForUpdate(long id) {
+    public Optional<User> findForUpdate(Long id) {
         return find(id);
     }
 }

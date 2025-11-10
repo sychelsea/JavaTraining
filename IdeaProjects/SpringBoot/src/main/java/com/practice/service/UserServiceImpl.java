@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(cacheNames = "userById", key = "#id")
-    public User getUser(long id) {
+    public User getUser(Long id) {
         return dao.find(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     @CacheEvict(cacheNames = "userById", key = "#id")
-    public User deleteUser(long id) {
+    public User deleteUser(Long id) {
         Optional<User> user = dao.find(id);
         if (user.isEmpty()) {
             throw new UserNotFoundException(id);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     @CachePut(cacheNames = "userById", key = "#id")
-    public User updateUser(long id, User info) {
+    public User updateUser(Long id, User info) {
         Optional<User> user = dao.find(id);
         if (user.isEmpty()) {
             throw new UserNotFoundException(id);
@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     @CachePut(cacheNames = "userById", key = "#id")
-    public User updateUserWithPessimisticLock(long id, User info, long holdMillis) {
+    public User updateUserWithPessimisticLock(Long id, User info, long holdMillis) {
         // pessimisticLock added in findForUpdate(id)
         User u = dao.findForUpdate(id).orElseThrow(() -> new UserNotFoundException(id));
         if (info.getUsername() != null)    u.setUsername(info.getUsername());
@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     @CachePut(cacheNames = "userById", key = "#id")
-    public User updateUserWithOptimisticLock(long id, User info) {
+    public User updateUserWithOptimisticLock(Long id, User info) {
         User u = dao.find(id).orElseThrow(() -> new UserNotFoundException(id));
         if (info.getUsername() != null)    u.setUsername(info.getUsername());
         if (info.getPassword() != null) u.setPassword(info.getPassword());
