@@ -2,6 +2,9 @@ package com.practice.config;
 
 import com.practice.service.CustomOidcUserService;
 import com.practice.service.CustomUserDetailsService;
+import org.springframework.boot.autoconfigure.http.client.reactive.AbstractClientHttpConnectorProperties;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -73,5 +76,17 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+//    @Bean
+//    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> redirectHttpToHttps() {
+//        return factory -> factory.addAdditionalTomcatConnectors(httpConnector());
+//    }
 
+ /*   private AbstractClientHttpConnectorProperties.Connector httpConnector() {
+        AbstractClientHttpConnectorProperties.Connector connector = new AbstractClientHttpConnectorProperties.Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+        connector.setScheme("http");
+        connector.setPort(8080);
+        connector.setSecure(false);
+        connector.setRedirectPort(8443);
+        return connector;
+    }*/
 }
