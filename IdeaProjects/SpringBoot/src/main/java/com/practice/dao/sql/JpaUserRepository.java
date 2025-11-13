@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    Optional<User> findByUsername(String username); // For Spring Security authentication
+    Optional<User> findByUsername(String username);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")
@@ -20,7 +20,7 @@ public interface JpaUserRepository extends JpaRepository<User, Long>, JpaSpecifi
 
     @Modifying
     @Transactional
-    @Query("update User u set u.username = :username, u.password = :password where u.id = :id")
+    @Query("update User u set u.username = :username, u.password = :password, u.role = :role where u.id = :id")
     int updateUser(@Param("id") Long id,
                    @Param("username") String username,
                    @Param("password") String password,

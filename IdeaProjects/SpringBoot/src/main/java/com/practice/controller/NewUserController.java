@@ -25,9 +25,8 @@ public class NewUserController {
 
     // create User
     // @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(value = "/user/{id}")
-    public ResponseEntity<User> createUser(@PathVariable long id, @RequestBody User body) {
-        body.setId(id);
+    @PostMapping(value = "/user")
+    public ResponseEntity<User> createUser(@RequestBody User body) {
         User user = service.createUser(body);       // UserAlreadyExistsException
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }

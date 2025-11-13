@@ -45,17 +45,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CachePut(cacheNames = "userById", key = "#result.id")
     public User createUser(User user) {
-        Optional<User> exist = dao.find(user.getId());
-        if (exist.isPresent()) {
-            throw new UserAlreadyExistsException(exist.get());
-        }
+        user.setId(null); // id is a GeneratedValue
+        dao.findByUsername(user.getUsername()).ifPresent(u -> {
+            throw new UserAlreadyExistsException(user);
+        });
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        dao.create(user);
+        User userWithId = dao.save(user);
 
         // write the event to Cassandra
         if (eventRepo != null)
-            eventRepo.save(new UserEvent(user.getId(), "CREATE", "User created: " + user.getUsername()));
-
+            eventRepo.save(new UserEvent(userWithId.getId(), "CREATE", "User created: " + userWithId.getUsername()));
         return user;
     }
 

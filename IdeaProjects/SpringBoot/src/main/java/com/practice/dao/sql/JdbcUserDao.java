@@ -37,9 +37,13 @@ public class JdbcUserDao implements UserDao {
 
 
     @Override
-    public int create(User u) {
-        return jdbc.update("INSERT INTO users(id, name, profile) VALUES(?, ?, ?)",
-                u.getId(), u.getUsername(), u.getPassword());
+    public User save(User u) {
+        jdbc.update("INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                    u.getUsername(), u.getPassword(), u.getRole());
+        // get the generated id
+        Long id = jdbc.queryForObject("SELECT currval(pg_get_serial_sequence('users', 'id'))", Long.class);
+        u.setId(id);
+        return u;
     }
 
     @Override
@@ -56,5 +60,12 @@ public class JdbcUserDao implements UserDao {
     @Override
     public Optional<User> findForUpdate(Long id) {
         return find(id);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        List<User> list = jdbc.query("SELECT id, username, password, role FROM users WHERE username = ?",
+                USER_ROW_MAPPER, username);
+        return list.stream().findFirst();
     }
 }

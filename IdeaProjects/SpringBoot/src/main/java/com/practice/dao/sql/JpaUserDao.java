@@ -27,12 +27,14 @@ public class JpaUserDao implements UserDao {
         return Optional.ofNullable(u);
     }
 
+    @Override public Optional<User> findByUsername(String username) {
+        return repo.findByUsername(username);
+    }
 
     @Override
     @Transactional
-    public int create(User u) {
-        repo.saveAndFlush(u);
-        return 1;
+    public User save(User u) {
+        return repo.saveAndFlush(u);
     }
 
     @Override

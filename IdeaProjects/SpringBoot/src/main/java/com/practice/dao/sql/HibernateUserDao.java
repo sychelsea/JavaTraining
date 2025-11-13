@@ -4,6 +4,7 @@ import com.practice.model.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -19,12 +20,14 @@ public class HibernateUserDao implements UserDao {
     }
 
     @Override
-    public int create(User u) {
+    @Transactional
+    public User save(User u) {
         em.persist(u);
-        return 1; // 1 - created
+        return u;
     }
 
     @Override
+    @Transactional
     public int update(User u) {
         int rows = em.createQuery(
                         "UPDATE User u SET u.username=:name, u.password=:profile WHERE u.id=:id")
@@ -44,7 +47,16 @@ public class HibernateUserDao implements UserDao {
     }
 
     @Override
+    @Transactional
     public Optional<User> findForUpdate(Long id) {
         return find(id);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return em.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+                .setParameter("username", username)
+                .getResultStream()
+                .findFirst();
     }
 }

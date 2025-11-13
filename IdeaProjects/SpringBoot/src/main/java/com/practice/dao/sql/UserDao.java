@@ -6,8 +6,8 @@ import java.util.Optional;
 public interface UserDao {
     Optional<User> find(Long id);
     Optional<User> findForUpdate(Long id); // with lock
-
-    int create(User u);         // return rows affected
+    Optional<User> findByUsername(String username);
+    User save(User u);
     int update(User u);
     int delete(Long id);
 }

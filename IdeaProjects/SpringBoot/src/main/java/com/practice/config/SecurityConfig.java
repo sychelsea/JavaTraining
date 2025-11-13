@@ -55,7 +55,7 @@ public class SecurityConfig {
                         // READ：USER & ADMIN are allowed
                         .requestMatchers(HttpMethod.GET, "/v2/api/user/**").hasAnyRole("USER","ADMIN")
                         // WRITE: ADMIN Only
-                        .requestMatchers(HttpMethod.POST, "/v2/api/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/v2/api/user").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,  "/v2/api/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/v2/api/user/**").hasRole("ADMIN")
                         // for any other request: require login
