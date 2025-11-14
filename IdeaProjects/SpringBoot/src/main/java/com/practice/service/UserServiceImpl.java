@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         // write the event to Cassandra
         if (eventRepo != null)
             eventRepo.save(new UserEvent(userWithId.getId(), "CREATE", "User created: " + userWithId.getUsername()));
-        return user;
+        return userWithId;
     }
 
     @Override
