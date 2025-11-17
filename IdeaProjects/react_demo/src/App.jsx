@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 
+// centralize all backend configuration and avoid hardcoding URLs inside each page
 const API_BASE_URL = "http://localhost:9091";
 
 function App() {
@@ -17,6 +18,16 @@ function App() {
         setAuth({ user, basicToken });
     };
 
+    // Update the auth state in App with the new user data
+    //   - child informs parent about some change via a callback prop
+    //   - functional update form
+    //       Direct value form: setAuth({ user: newUser, basicToken: "something" });
+    //       "prev" is the previous auth state
+    //   - spread + immutability
+    //       { ...prev, user: newUser } does two things:
+    //          1. ...prev copies all existing fields of auth (both user and basicToken) into a new object.
+    //          2. user: newUser overrides the user field in that new object.
+    // State should be treated as immutable. You always create a new object instead of modifying the old one in place.
     const handleUserUpdate = (newUser) => {
         setAuth((prev) => ({ ...prev, user: newUser }));
     };
@@ -25,6 +36,7 @@ function App() {
         setAuth({ user: null, basicToken: null });
     };
 
+    // !!: Object => Boolean (object - true, null - false)
     const isLoggedIn = !!auth.user;
 
     return (

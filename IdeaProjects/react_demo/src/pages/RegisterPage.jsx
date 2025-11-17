@@ -1,17 +1,16 @@
-// src/pages/RegisterPage.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 function RegisterPage({ apiBaseUrl }) {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
+    const [username, setUsername] = useState("");  // Controlled input field (text)
+    const [password, setPassword] = useState("");  // Controlled input field (password)
+    const [message, setMessage] = useState(null);  // Feedback message ("User created successfully" / error)
+    const [submitting, setSubmitting] = useState(false);  // Boolean flag to prevent multiple submissions (disables button)
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault();  // stops the browser from refreshing the page when the form is submitted
         setMessage(null);
-        setSubmitting(true);
+        setSubmitting(true);   // for submit button
 
         try {
             const response = await fetch(`${apiBaseUrl}/v2/api/user`, {
@@ -20,7 +19,7 @@ function RegisterPage({ apiBaseUrl }) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    id: null,             // 让后台自己用 @GeneratedValue
+                    id: null,             // @GeneratedValue
                     username,
                     password,
                     role: "ROLE_USER",

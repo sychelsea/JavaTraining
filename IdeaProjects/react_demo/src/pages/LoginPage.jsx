@@ -10,7 +10,7 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
     const navigate = useNavigate();
 
     if (isLoggedIn) {
-        navigate("/home");
+        navigate("/home");  // Auto-redirect if already logged in
     }
 
     const handleSubmit = async (e) => {
@@ -18,10 +18,9 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
         setError(null);
         setSubmitting(true);
 
-        const basicToken = "Basic " + window.btoa(`${username}:${password}`);
+        const basicToken = "Basic " + window.btoa(`${username}:${password}`); // window.btoa() converts "user:pass" into Base64
 
         try {
-            // axios 版本的 API integration
             const res = await axios.get(`${apiBaseUrl}/v2/api/me`, {
                 headers: {
                     Authorization: basicToken,
