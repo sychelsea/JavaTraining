@@ -1,4 +1,4 @@
-// src/pages/LoginPage.jsx
+// LoginPage.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -9,7 +9,6 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
     const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    // 如果已经登录，直接跳到 home
     if (isLoggedIn) {
         navigate("/home");
     }
@@ -19,30 +18,26 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
         setError(null);
         setSubmitting(true);
 
-        // Basic Auth: "Basic base64(username:password)"
-        const basicToken =
-            "Basic " + window.btoa(`${username}:${password}`);
+        const basicToken = "Basic " + window.btoa(`${username}:${password}`);
 
         try {
-            // ⚠️ 这里用一个“受保护的接口”来测试用户名密码是否正确
-            // 你可以改成 /v2/api/user/me 之类的接口
-            const response = await fetch(`${apiBaseUrl}/v2/api/user/1`, {
+            const res = await fetch(`${apiBaseUrl}/v2/api/me`, {
                 method: "GET",
                 headers: {
                     Authorization: basicToken,
                 },
             });
 
-            if (response.ok) {
-                onLoginSuccess(username, basicToken);
+            if (res.ok) {
+                const user = await res.json(); // { id, username, role }
+                onLoginSuccess(user, basicToken);
                 navigate("/home");
-            } else if (response.status === 401) {
+            } else if (res.status === 401) {
                 setError("Invalid username or password.");
             } else {
-                setError(`Login failed: ${response.status}`);
+                setError(`Login failed: ${res.status}`);
             }
         } catch (err) {
-            console.error(err);
             setError("Network error, please try again.");
         } finally {
             setSubmitting(false);
@@ -53,6 +48,7 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
         <div className="auth-container">
             <div className="auth-card">
                 <h2>Login</h2>
+
                 <form onSubmit={handleSubmit} className="auth-form">
                     <label>
                         Username
@@ -61,7 +57,6 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            autoComplete="username"
                         />
                     </label>
 
@@ -72,7 +67,6 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            autoComplete="current-password"
                         />
                     </label>
 

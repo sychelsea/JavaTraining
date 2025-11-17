@@ -42,6 +42,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(cacheNames = "userByName", key = "#username")
+    public User getUser(String username) {
+        return dao.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+    }
+
+    @Override
     @Transactional
     @CachePut(cacheNames = "userById", key = "#result.id")
     public User createUser(User user) {

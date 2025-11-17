@@ -1,57 +1,66 @@
+// App.jsx
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/HomePage";
+import RegisterPage from "./pages/RegisterPage";
 
 const API_BASE_URL = "http://localhost:9091";
 
 function App() {
-    // 简单的前端登录状态（demo 用）
     const [auth, setAuth] = useState({
-        username: null,
-        basicToken: null, // "Basic xxx"，用在调用需要认证的 API 上
+        user: null,        // { id, username, role, ... }
+        basicToken: null,  // "Basic xxxx"
     });
 
-    const handleLoginSuccess = (username, basicToken) => {
-        setAuth({ username, basicToken });
+    const handleLoginSuccess = (user, basicToken) => {
+        setAuth({ user, basicToken });
+    };
+
+    const handleUserUpdate = (newUser) => {
+        setAuth((prev) => ({ ...prev, user: newUser }));
     };
 
     const handleLogout = () => {
-        setAuth({ username: null, basicToken: null });
+        setAuth({ user: null, basicToken: null });
     };
 
-    const isLoggedIn = !!auth.username;
+    const isLoggedIn = !!auth.user;
 
     return (
-        <div className="app-container">
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <LoginPage
+        <Routes>
+            <Route
+                path="/"
+                element={
+                    <LoginPage
+                        apiBaseUrl={API_BASE_URL}
+                        onLoginSuccess={handleLoginSuccess}
+                        isLoggedIn={isLoggedIn}
+                    />
+                }
+            />
+
+            <Route
+                path="/register"
+                element={<RegisterPage apiBaseUrl={API_BASE_URL} />}
+            />
+
+            <Route
+                path="/home"
+                element={
+                    isLoggedIn ? (
+                        <HomePage
                             apiBaseUrl={API_BASE_URL}
-                            onLoginSuccess={handleLoginSuccess}
-                            isLoggedIn={isLoggedIn}
+                            auth={auth}
+                            onLogout={handleLogout}
+                            onUserUpdate={handleUserUpdate}
                         />
-                    }
-                />
-                <Route
-                    path="/register"
-                    element={<RegisterPage apiBaseUrl={API_BASE_URL} />}
-                />
-                <Route
-                    path="/home"
-                    element={
-                        isLoggedIn ? (
-                            <HomePage auth={auth} onLogout={handleLogout} />
-                        ) : (
-                            <Navigate to="/" replace />
-                        )
-                    }
-                />
-            </Routes>
-        </div>
+                    ) : (
+                        <Navigate to="/" replace />
+                    )
+                }
+            />
+        </Routes>
     );
 }
 

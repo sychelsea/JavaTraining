@@ -5,6 +5,7 @@ import com.practice.model.User;
 public interface UserService {
 
     public User getUser(Long id);
+    public User getUser(String username);
 
     public User createUser(User user);
 
