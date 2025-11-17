@@ -7,6 +7,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +15,11 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 // @EnableWebSecurity  // for @PreAuthorize("USER")
 
@@ -32,61 +38,58 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomOidcUserService oidcUserService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomOidcUserService oidcUserService) {
+
+    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomOidcUserService oidcUserService, CorsConfigurationSource corsConfigurationSource) {
         this.userDetailsService = userDetailsService;
         this.oidcUserService = oidcUserService;
-
     }
+
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
+
         http
-                // === 1. enable CORS + CSRF Token（Cookie） ===
-                //.cors(Customizer.withDefaults())
-                //.csrf(csrf -> csrf
-                //        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                //)
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/v2/api/**")) // no frond end
-                // === 2. role based policy ===
-                .userDetailsService(userDetailsService)
+                .securityMatcher("/v2/api/**")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/v2/api/**"))
                 .authorizeHttpRequests(auth -> auth
-                        // OAuth API
-                        .requestMatchers("/", "/public/**", "/actuator/health", "/oauth2/**", "/login/**").permitAll()
-                        // READ：USER & ADMIN are allowed
-                        .requestMatchers(HttpMethod.GET, "/v2/api/user/**").hasAnyRole("USER","ADMIN")
-                        // WRITE: ADMIN Only
-                        .requestMatchers(HttpMethod.POST, "/v2/api/user").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,  "/v2/api/user/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/v2/api/user/**").hasRole("ADMIN")
-                        // for any other request: require login
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v2/api/user").permitAll() // allow anonymous registration
+
+                        // rules for user APIs
+                        .requestMatchers(HttpMethod.GET, "/v2/api/user/**")
+                        .hasAnyRole("USER", "ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/v2/api/user/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/v2/api/user/**")
+                        .hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                // === 3. support Basic Auth + OAuth2 Login ===
-                .httpBasic(Customizer.withDefaults())
-                .oauth2Login(oauth -> oauth.userInfoEndpoint(u -> u.oidcUserService(oidcUserService)))
-                // === 4. allow logout ===
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/")
-                        .permitAll()
-                );
+                .httpBasic(Customizer.withDefaults())   // Basic Auth
+                .oauth2Login(oauth -> oauth.disable()); // disable OAuth2
+
         return http.build();
     }
+
 
     @Bean PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> redirectHttpToHttps() {
-//        return factory -> factory.addAdditionalTomcatConnectors(httpConnector());
-//    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
 
- /*   private AbstractClientHttpConnectorProperties.Connector httpConnector() {
-        AbstractClientHttpConnectorProperties.Connector connector = new AbstractClientHttpConnectorProperties.Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-        connector.setScheme("http");
-        connector.setPort(8080);
-        connector.setSecure(false);
-        connector.setRedirectPort(8443);
-        return connector;
-    }*/
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*")); // "Authorization","Content-Type"
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
 }
