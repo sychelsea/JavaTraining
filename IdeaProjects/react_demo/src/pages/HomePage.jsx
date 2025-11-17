@@ -210,13 +210,13 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
     return (
         <div className="home-container">
             <div className="home-card">
-                {/* 当前登录用户信息 */}
-                <h1>Current User</h1>
+                {/* display user info */}
+                <h1>User Info</h1>
                 <p><strong>ID:</strong> {user.id}</p>
                 <p><strong>Username:</strong> {user.username}</p>
                 <p><strong>Role:</strong> {user.role}</p>
 
-                {/* Search 区块 */}
+                {/* Search */}
                 <h3 style={{ marginTop: "20px" }}>Search User by ID</h3>
                 <form onSubmit={handleSearch} className="auth-form">
                     <label>
@@ -239,7 +239,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
                     </div>
                 )}
 
-                {/* Update 区块 */}
+                {/* Update */}
                 <h3 style={{ marginTop: "24px" }}>Update User</h3>
                 <form onSubmit={handleUpdate} className="auth-form">
                     <label>
@@ -251,7 +251,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
                         />
                     </label>
                     <label>
-                        Username (leave blank to keep original)
+                        Username
                         <input
                             type="text"
                             value={formUsername}
@@ -260,7 +260,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
                         />
                     </label>
                     <label>
-                        Role (leave blank to keep original)
+                        Role
                         <input
                             type="text"
                             value={formRole}
@@ -271,7 +271,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
                     <button type="submit">Update</button>
                 </form>
 
-                {/* Delete 区块 */}
+                {/* Delete */}
                 <h3 style={{ marginTop: "24px" }}>Delete User</h3>
                 <form onSubmit={handleDelete} className="auth-form">
                     <label>
@@ -285,7 +285,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
                     <button type="submit">Delete</button>
                 </form>
 
-                {/* 消息 */}
+                {/* message */}
                 {message && <p className="message">{message}</p>}
                 {error && <p className="error">{error}</p>}
 

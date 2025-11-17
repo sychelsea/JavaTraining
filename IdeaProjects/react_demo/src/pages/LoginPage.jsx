@@ -1,6 +1,6 @@
-// LoginPage.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
     const [username, setUsername] = useState("");
@@ -21,24 +21,26 @@ function LoginPage({ apiBaseUrl, onLoginSuccess, isLoggedIn }) {
         const basicToken = "Basic " + window.btoa(`${username}:${password}`);
 
         try {
-            const res = await fetch(`${apiBaseUrl}/v2/api/me`, {
-                method: "GET",
+            // axios 版本的 API integration
+            const res = await axios.get(`${apiBaseUrl}/v2/api/me`, {
                 headers: {
                     Authorization: basicToken,
                 },
             });
 
-            if (res.ok) {
-                const user = await res.json(); // { id, username, role }
-                onLoginSuccess(user, basicToken);
-                navigate("/home");
-            } else if (res.status === 401) {
-                setError("Invalid username or password.");
-            } else {
-                setError(`Login failed: ${res.status}`);
-            }
+            const user = res.data; // {id, username, role}
+            onLoginSuccess(user, basicToken);
+            navigate("/home");
         } catch (err) {
-            setError("Network error, please try again.");
+            if (err.response) {
+                if (err.response.status === 401) {
+                    setError("Invalid username or password.");
+                } else {
+                    setError(`Login failed: ${err.response.status}`);
+                }
+            } else {
+                setError("Network error, please try again.");
+            }
         } finally {
             setSubmitting(false);
         }
