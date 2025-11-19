@@ -1,27 +1,28 @@
-// src/pages/HomePage.jsx
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
     const { user, basicToken } = auth;
 
-    // 当前表单要操作的用户（可以是自己，也可以是 search 出来的）
+    // user info
     const [formId, setFormId] = useState(user?.id || "");
     const [formUsername, setFormUsername] = useState(user?.username || "");
     const [formRole, setFormRole] = useState(user?.role || "");
 
-    // Delete 用的 id
+    // Delete - id
     const [deleteId, setDeleteId] = useState(user?.id || "");
 
     // Search
     const [searchId, setSearchId] = useState("");
     const [searchResult, setSearchResult] = useState(null);
 
-    // 消息提示
+    // Message & Error State
     const [message, setMessage] = useState(null); // success/info
     const [error, setError] = useState(null);     // error
 
+    // lifting state up, prop-driven updates, useEffect for synchronization
     useEffect(() => {
-        // 登录进来时，用当前 user 初始化表单
+        // when login, init the form by the current user
         if (user) {
             setFormId(user.id);
             setFormUsername(user.username);
@@ -40,7 +41,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
         "Content-Type": "application/json",
     };
 
-    /* 🔍 Search: 根据 id 查 user，并把结果填进表单（方便 update/delete） */
+    /*  Search */
     const handleSearch = async (e) => {
         e.preventDefault();
         setMessage(null);
@@ -53,42 +54,41 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
         }
 
         try {
-            const res = await fetch(`${apiBaseUrl}/v2/api/user/${searchId}`, {
-                method: "GET",
-                headers: { Authorization: basicToken },
-            });
+            const res = await axios.get(
+                `${apiBaseUrl}/v2/api/user/${searchId}`,
+                {
+                    headers: {
+                        Authorization: basicToken,
+                    },
+                }
+            );
 
-            if (res.status === 401 || res.status === 403) {
-                setError("You are not allowed to search this user.");
-                return;
-            }
-
-            if (res.status === 404) {
-                setError(`User ${searchId} not found.`);
-                return;
-            }
-
-            if (!res.ok) {
-                setError(`Search failed: ${res.status}`);
-                return;
-            }
-
-            const data = await res.json();
+            const data = res.data;
             setSearchResult(data);
             setMessage(`Found user ${data.username} (id=${data.id}).`);
 
-            // 用 search 到的结果填充 Update / Delete 表单
+            // put the result data into the form
             setFormId(data.id);
             setFormUsername(data.username || "");
             setFormRole(data.role || "");
             setDeleteId(data.id);
-        } catch (e) {
-            console.error(e);
-            setError("Network error during search.");
+        } catch (err) {
+            if (err.response) {
+                const status = err.response.status;
+                if (status === 401 || status === 403) {
+                    setError("You are not allowed to search this user.");
+                } else if (status === 404) {
+                    setError(`User ${searchId} not found.`);
+                } else {
+                    setError(`Search failed: ${status}`);
+                }
+            } else {
+                setError("Network error during search.");
+            }
         }
     };
 
-    /* ✏️ Update：只更新非空字段 */
+    /* Update */
     const handleUpdate = async (e) => {
         e.preventDefault();
         setMessage(null);
@@ -99,11 +99,9 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
             return;
         }
 
-        // ⚠️ 关键点：只把非空字段放进 payload
+        // only update the non-null info
         const payload = {};
 
-        // id 一般作为 path variable，body 里可以不放，也可以放，按你后端来
-        // 这里示例：只要填了，就带上
         if (String(formId).trim() !== "") {
             payload.id = formId;
         }
@@ -115,42 +113,47 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
         }
 
         try {
-            const res = await fetch(`${apiBaseUrl}/v2/api/user/${formId}`, {
-                method: "PUT", // 如果你后端是 POST，就改成 POST
-                headers: authJsonHeaders,
-                body: JSON.stringify(payload),
-            });
+            const res = await axios.put(
+                `${apiBaseUrl}/v2/api/user/${formId}`,
+                payload,
+                {
+                    headers: authJsonHeaders,
+                }
+            );
 
-            if (res.status === 401 || res.status === 403) {
-                setError("You are not allowed to update this user.");
-                return;
-            }
-
-            if (!res.ok) {
-                const text = await res.text();
-                setError(`Update failed: ${res.status} ${text}`);
-                return;
-            }
-
-            const updated = await res.json();
+            const updated = res.data;
             setMessage("User updated successfully.");
 
-            // 如果更新的是当前登录的 user，就顺便更新全局 auth.user
+            // if it's the current user, update the displayed info
+            // The API integration is not only about sending HTTP requests,
+            // but also about how the responses drive the overall application state,
+            // including authentication and navigation.
             if (String(updated.id) === String(user.id)) {
                 onUserUpdate(updated);
             }
 
-            // 更新 searchResult 显示
+            // searchResult display
             if (searchResult && String(searchResult.id) === String(updated.id)) {
                 setSearchResult(updated);
             }
-        } catch (e) {
-            console.error(e);
-            setError("Network error during update.");
+        } catch (err) {
+            if (err.response) {
+                const status = err.response.status;
+                const data = err.response.data;
+                const text =
+                    typeof data === "string" ? data : JSON.stringify(data);
+                if (status === 401 || status === 403) {
+                    setError("You are not allowed to update this user.");
+                } else {
+                    setError(`Update failed: ${status} ${text}`);
+                }
+            } else {
+                setError("Network error during update.");
+            }
         }
     };
 
-    /* 🗑 Delete */
+    /* Delete */
     const handleDelete = async (e) => {
         e.preventDefault();
         setMessage(null);
@@ -162,37 +165,39 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
         }
 
         try {
-            const res = await fetch(`${apiBaseUrl}/v2/api/user/${deleteId}`, {
-                method: "DELETE",
-                headers: { Authorization: basicToken },
-            });
-
-            if (res.status === 401 || res.status === 403) {
-                setError("You are not allowed to delete this user.");
-                return;
-            }
-
-            if (res.status === 404) {
-                setError(`User ${deleteId} not found.`);
-                return;
-            }
-
-            if (!res.ok) {
-                const text = await res.text();
-                setError(`Delete failed: ${res.status} ${text}`);
-                return;
-            }
+            await axios.delete(
+                `${apiBaseUrl}/v2/api/user/${deleteId}`,
+                {
+                    headers: {
+                        Authorization: basicToken,
+                    },
+                }
+            );
 
             setMessage(`User ${deleteId} deleted successfully.`);
 
-            // 如果删的是自己，自动 logout
+            // if it's the current user, logout
             if (String(deleteId) === String(user.id)) {
                 setMessage("You deleted your own account, logging out…");
                 setTimeout(() => handleLogoutClick(), 1500);
             }
-        } catch (e) {
-            console.error(e);
-            setError("Network error during delete.");
+        } catch (err) {
+            if (err.response) {
+                const status = err.response.status;
+                const data = err.response.data;
+                const text =
+                    typeof data === "string" ? data : JSON.stringify(data);
+
+                if (status === 401 || status === 403) {
+                    setError("You are not allowed to delete this user.");
+                } else if (status === 404) {
+                    setError(`User ${deleteId} not found.`);
+                } else {
+                    setError(`Delete failed: ${status} ${text}`);
+                }
+            } else {
+                setError("Network error during delete.");
+            }
         }
     };
 
@@ -208,6 +213,11 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
     }
 
     return (
+        <>
+        <div className="header">
+            <div className="header-title">User Dashboard</div>
+            <button onClick={handleLogoutClick}>Log out</button>
+        </div>
         <div className="home-container">
             <div className="home-card">
                 {/* display user info */}
@@ -297,6 +307,7 @@ function HomePage({ apiBaseUrl, auth, onLogout, onUserUpdate }) {
                 </button>
             </div>
         </div>
+        </>
     );
 }
 
